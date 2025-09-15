@@ -14,12 +14,14 @@ class DrawingPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private static final int DEFAULT_SIZE = 60;
-    private final List<Shape> shapes = new ArrayList<>();
+    private final List<ConcreteShape> shapes = new ArrayList<>();
     private Point startDrag = null;
-
-    DrawingPanel() {
-        
-        setBackground(Color.WHITE);
+    private final ShapeFactory Stfactory;
+    
+    DrawingPanel(ShapeFactory factory) {
+    	
+        this.Stfactory = factory;
+		setBackground(Color.WHITE);
         setOpaque(true);
         setDoubleBuffered(true);
 
@@ -27,7 +29,7 @@ class DrawingPanel extends JPanel {
             @Override public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 1 && startDrag == null) {
                     int size = Math.max(Math.min(DEFAULT_SIZE, DEFAULT_SIZE), 10);
-                    Shape s =  new Ellipse2D.Double(e.getPoint().x, e.getPoint().y, size, size);
+                    ConcreteShape s =  factory.createCircle(e, size);
                     //return new Rectangle2D.Double(e.getPoint().x, e.getPoint().y, Math.max(DEFAULT_SIZE, 10), Math.max(DEFAULT_SIZE, 10));
                     shapes.add(s);
                     repaint();
@@ -49,15 +51,19 @@ class DrawingPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        for (Shape s : shapes) {
-            g2.setColor(new Color(30,144,255));
-            g2.fill(s);
-            g2.setColor(new Color(0,0,0,70));
+        for (ConcreteShape s : shapes) {
+            g2.setColor(s.getFill());
+            g2.fill(s.getShape());
+            g2.setColor(s.getBorder());
             g2.setStroke(new BasicStroke(1.2f));
-            g2.draw(s);
+            g2.draw(s.getShape());
         }
 
         g2.dispose();
     }
+
+	public ShapeFactory getStfactory() {
+		return Stfactory;
+	}
 
 }
